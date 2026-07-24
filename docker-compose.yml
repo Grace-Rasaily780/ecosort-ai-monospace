@@ -1,0 +1,16 @@
+services:
+  api:
+    build: .
+    restart: unless-stopped
+    expose:
+      - "8000"
+
+  nginx:
+    image: nginx:alpine
+    restart: unless-stopped
+    depends_on:
+      - api
+    ports:
+      - "8334:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
