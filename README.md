@@ -52,3 +52,30 @@ dataset (`Bio-degradable`, `Non-Biodegradable`, `E-Waste`) to produce
   going through the Caddy-fronted hostname on plain `http://` (no TLS
   handshake, `:8334` firewalled externally, port 80 open) — see commit
   "https -> http transform".
+
+## Scripts
+
+`scripts/testing/` — PC-side helpers for the UART-bridge devkit
+(`/dev/ttyUSB0`), used while bringing the live pipeline up:
+
+- `view_camera_feed.py` — reads the relayed JPEG stream, saves each frame to
+  disk.
+- `stream_camera_feed.py` — same, but also serves the frames as MJPEG over
+  HTTP so the feed can be viewed live in a browser.
+- `test_live_predict.py` — end-to-end test: reads live frames, POSTs each to
+  `/predict`, prints the classification, writes the matching `'B'/'N'/'E'`
+  byte back down the serial link to blink the LEDs (predecessor to the
+  bridge devkit doing this itself over WiFi).
+- `detect_live.py` — watches a frames directory (populated by the two
+  scripts above) and POSTs each new file to `/predict`.
+
+`scripts/data_sourcing/` — dataset collection for training (icrawler, Bing
+backend, no API key needed):
+
+- `download_garbage_dataset.py` — generic mixed-garbage dataset, one folder
+  per class, multiple query variations per class to avoid single-page bias.
+- `download_plastic_bottles.py` — plastic-bottle-only dataset.
+- `download_waste_dataset_v2.py` — the 3-class dataset actually used for
+  `best_v2.pt` (bio-degradable / non-biodegradable / e-waste), balanced per
+  category, real-photo filter, negative keywords to push out
+  AI-generated/illustrated results.
